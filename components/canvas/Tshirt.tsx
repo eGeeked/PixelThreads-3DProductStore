@@ -8,7 +8,7 @@ import state from "@/lib/store"
 
 export default function Tshirt() {
   const snap = useSnapshot(state)
-  const { nodes, materials } = useGLTF("/tshirt/source/tshirt.glb") as any
+  const { nodes, materials } = useGLTF("/api/models/tshirt/source/tshirt.glb") as any
   materials["Polo Shirt"].map = null
   materials["Button"].color = { r: 0, g: 0, b: 0 }
 

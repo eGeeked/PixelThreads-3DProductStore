@@ -1,13 +1,31 @@
 import { NextRequest, NextResponse } from "next/server"
 import { readFile } from "fs/promises"
 import { join } from "path"
+import { existsSync } from "fs"
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ path: string[] }> }
 ) {
   const { path } = await params
-  const filePath = join(process.cwd(), "public", ...path)
+
+  // Try multiple locations: the git-tracked client/public first, then public/
+  const locations = [
+    join(process.cwd(), "client", "public", ...path),
+    join(process.cwd(), "public", ...path),
+  ]
+
+  let filePath: string | null = null
+  for (const loc of locations) {
+    if (existsSync(loc)) {
+      filePath = loc
+      break
+    }
+  }
+
+  if (!filePath) {
+    return NextResponse.json({ error: "File not found" }, { status: 404 })
+  }
 
   try {
     const file = await readFile(filePath)
