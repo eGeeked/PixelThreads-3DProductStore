@@ -26,7 +26,16 @@ export default function ImageLayerControls() {
     stateLayer.scale = value
   }
 
-  const axisLabels = ["X", "Y", "Z"]
+
+
+  const handleToggleSide = () => {
+    const newSide = stateLayer.side === "front" ? "back" : "front"
+    stateLayer.side = newSide
+    // Flip Z position to place on opposite side
+    stateLayer.position[2] = newSide === "front"
+      ? Math.abs(stateLayer.position[2])
+      : -Math.abs(stateLayer.position[2])
+  }
 
   const handleToggleVisibility = () => {
     stateLayer.visible = !stateLayer.visible
@@ -79,58 +88,99 @@ export default function ImageLayerControls() {
         </div>
       </div>
 
+      {/* Front / Back toggle */}
       <div className="mb-2">
         <p className="text-[10px] font-medium text-gray-500 uppercase tracking-wide mb-1">
-          Position
+          Placement
         </p>
-        {axisLabels.map((label, i) => (
-          <div key={`pos-${label}`} className="flex items-center gap-1.5 mb-1">
-            <span className="text-[10px] text-gray-400 w-3 font-mono">
-              {label}
-            </span>
-            <input
-              type="range"
-              min={-1}
-              max={1}
-              step={0.01}
-              value={layer.position[i]}
-              onChange={(e) =>
-                updatePosition(i as 0 | 1 | 2, parseFloat(e.target.value))
-              }
-              className="flex-1 h-1 accent-gray-800"
-            />
-            <span className="text-[10px] text-gray-500 w-8 text-right font-mono">
-              {layer.position[i].toFixed(2)}
-            </span>
-          </div>
-        ))}
+        <div className="flex gap-1">
+          <button
+            onClick={() => { if (layer.side !== "front") handleToggleSide() }}
+            className={`flex-1 text-[10px] py-1 rounded border transition-colors ${
+              layer.side === "front"
+                ? "bg-gray-800 text-white border-gray-800"
+                : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
+            }`}
+          >
+            Front
+          </button>
+          <button
+            onClick={() => { if (layer.side !== "back") handleToggleSide() }}
+            className={`flex-1 text-[10px] py-1 rounded border transition-colors ${
+              layer.side === "back"
+                ? "bg-gray-800 text-white border-gray-800"
+                : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
+            }`}
+          >
+            Back
+          </button>
+        </div>
       </div>
 
+      {/* Move: horizontal (X), vertical (Y), rotate (Z) */}
       <div className="mb-2">
         <p className="text-[10px] font-medium text-gray-500 uppercase tracking-wide mb-1">
-          Rotation
+          Move
         </p>
-        {axisLabels.map((label, i) => (
-          <div key={`rot-${label}`} className="flex items-center gap-1.5 mb-1">
-            <span className="text-[10px] text-gray-400 w-3 font-mono">
-              {label}
-            </span>
-            <input
-              type="range"
-              min={-3.14}
-              max={3.14}
-              step={0.05}
-              value={layer.rotation[i]}
-              onChange={(e) =>
-                updateRotation(i as 0 | 1 | 2, parseFloat(e.target.value))
-              }
-              className="flex-1 h-1 accent-gray-800"
-            />
-            <span className="text-[10px] text-gray-500 w-8 text-right font-mono">
-              {layer.rotation[i].toFixed(2)}
-            </span>
-          </div>
-        ))}
+        {/* Horizontal (X position) */}
+        <div className="flex items-center gap-1.5 mb-1">
+          <svg width="12" height="12" viewBox="0 0 16 16" className="text-gray-400 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <line x1="1" y1="8" x2="15" y2="8" />
+            <polyline points="3,5.5 1,8 3,10.5" />
+            <polyline points="13,5.5 15,8 13,10.5" />
+          </svg>
+          <input
+            type="range"
+            min={-1}
+            max={1}
+            step={0.01}
+            value={layer.position[0]}
+            onChange={(e) => updatePosition(0, parseFloat(e.target.value))}
+            className="flex-1 h-1 accent-gray-800"
+          />
+          <span className="text-[10px] text-gray-500 w-8 text-right font-mono">
+            {layer.position[0].toFixed(2)}
+          </span>
+        </div>
+        {/* Vertical (Y position) */}
+        <div className="flex items-center gap-1.5 mb-1">
+          <svg width="12" height="12" viewBox="0 0 16 16" className="text-gray-400 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <line x1="8" y1="1" x2="8" y2="15" />
+            <polyline points="5.5,3 8,1 10.5,3" />
+            <polyline points="5.5,13 8,15 10.5,13" />
+          </svg>
+          <input
+            type="range"
+            min={-1}
+            max={1}
+            step={0.01}
+            value={layer.position[1]}
+            onChange={(e) => updatePosition(1, parseFloat(e.target.value))}
+            className="flex-1 h-1 accent-gray-800"
+          />
+          <span className="text-[10px] text-gray-500 w-8 text-right font-mono">
+            {layer.position[1].toFixed(2)}
+          </span>
+        </div>
+        {/* Rotate (Z rotation) */}
+        <div className="flex items-center gap-1.5 mb-1">
+          <svg width="12" height="12" viewBox="0 0 16 16" className="text-gray-400 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M12.5 8a4.5 4.5 0 1 1-1.3-3.2" />
+            <polyline points="12.5,2 12.5,5 9.5,5" />
+          </svg>
+          <input
+            type="range"
+            min={-3.14}
+            max={3.14}
+            step={0.05}
+            value={layer.rotation[2]}
+            onChange={(e) => updateRotation(2, parseFloat(e.target.value))}
+            className="flex-1 h-1 accent-gray-800"
+          />
+          <span className="text-[10px] text-gray-500 w-8 text-right font-mono">
+            {layer.rotation[2].toFixed(2)}
+          </span>
+        </div>
       </div>
 
       <div>

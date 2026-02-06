@@ -177,6 +177,7 @@ export default function Customizer({
         position: basePos,
         rotation: [0, 0, 0] as [number, number, number],
         scale: lastLayer?.scale ?? 0.15,
+        side: "front" as "front" | "back",
       })
       state.selectedLayerId = id
       setActiveEditorTab("")
@@ -204,15 +205,27 @@ export default function Customizer({
     <AnimatePresence>
       {!snap.intro && (
         <>
-          {/* Left side: Editor tabs + Model tabs */}
+          {/* Left side: Model tabs + Editor tabs, vertically centered */}
           <motion.div
             key="custom"
             className="absolute top-0 left-0 z-10"
             {...slideAnimation("left")}
           >
-            <div className="flex items-start min-h-screen gap-0 pt-4">
-              {/* Editor tools */}
-              <div className="editortabs-container tabs">
+            <div className="flex items-center min-h-screen gap-0">
+              {/* Model selector (leftmost) */}
+              <div className="modeltabs-container tabs ml-1">
+                <p className="text-[10px] text-gray-500 my-[-5px]">Models</p>
+                {modelTabs.map((tab) => (
+                  <Tab
+                    key={tab.name}
+                    tab={tab}
+                    handleClick={() => handleChangeModel(tab.name)}
+                    helperText={tab.helperText}
+                  />
+                ))}
+              </div>
+              {/* Editor tools (to the right of models) */}
+              <div className="editortabs-container tabs ml-1">
                 {EditorTabs.map((tab) => (
                   <Tab
                     key={tab.name}
@@ -226,18 +239,6 @@ export default function Customizer({
                   />
                 ))}
                 {generateTabContent()}
-              </div>
-              {/* Model selector docked to the right of editor tabs */}
-              <div className="modeltabs-container tabs ml-1">
-                <p className="text-[10px] text-gray-500 my-[-5px]">Models</p>
-                {modelTabs.map((tab) => (
-                  <Tab
-                    key={tab.name}
-                    tab={tab}
-                    handleClick={() => handleChangeModel(tab.name)}
-                    helperText={tab.helperText}
-                  />
-                ))}
               </div>
             </div>
           </motion.div>
