@@ -9,6 +9,8 @@ export interface ImageLayer {
   rotation: [number, number, number]
   scale: number
   side: "front" | "back"
+  imageWidth: number
+  imageHeight: number
 }
 
 const state = proxy({
@@ -28,6 +30,8 @@ const state = proxy({
       rotation: [0, 0, 0] as [number, number, number],
       scale: 0.15,
       side: "front" as "front" | "back",
+      imageWidth: 0,
+      imageHeight: 0,
     },
   ] as ImageLayer[],
 })

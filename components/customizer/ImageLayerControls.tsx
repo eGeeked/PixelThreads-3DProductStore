@@ -2,10 +2,12 @@
 
 import { useSnapshot } from "valtio"
 import state from "@/lib/store"
+import { PRINT_LIMITS, MIN_DPI } from "@/lib/constants"
 
 export default function ImageLayerControls() {
   const snap = useSnapshot(state)
   const layer = snap.imageDecals.find((l) => l.id === snap.selectedLayerId)
+  const printLimits = PRINT_LIMITS[snap.model] ?? PRINT_LIMITS.tshirt
 
   if (!layer) return null
 
@@ -194,9 +196,9 @@ export default function ImageLayerControls() {
           <input
             type="range"
             min={0.01}
-            max={1}
+            max={printLimits.maxScale}
             step={0.01}
-            value={layer.scale}
+            value={Math.min(layer.scale, printLimits.maxScale)}
             onChange={(e) => updateScale(parseFloat(e.target.value))}
             className="flex-1 h-1 accent-gray-800"
           />
@@ -204,6 +206,71 @@ export default function ImageLayerControls() {
             {layer.scale.toFixed(2)}
           </span>
         </div>
+
+        {/* Print size & DPI info */}
+        {(() => {
+          const printWidth = (layer.scale * printLimits.scaleToInches).toFixed(1)
+          const printHeight = (
+            layer.scale *
+            printLimits.scaleToInches *
+            (layer.imageHeight && layer.imageWidth
+              ? layer.imageHeight / layer.imageWidth
+              : 1)
+          ).toFixed(1)
+          const effectiveDpi =
+            layer.imageWidth > 0
+              ? Math.round(layer.imageWidth / (layer.scale * printLimits.scaleToInches))
+              : null
+
+          const isOverSize =
+            parseFloat(printWidth) > printLimits.maxWidthIn ||
+            parseFloat(printHeight) > printLimits.maxHeightIn
+          const isLowDpi = effectiveDpi !== null && effectiveDpi < MIN_DPI
+
+          return (
+            <div className="mt-1.5 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-[9px] text-gray-400">
+                  Print: {printWidth}" x {printHeight}"
+                </span>
+                <span className="text-[9px] text-gray-400">
+                  Max: {printLimits.maxWidthIn}" x {printLimits.maxHeightIn}"
+                </span>
+              </div>
+              {effectiveDpi !== null && (
+                <div className="flex items-center gap-1">
+                  <span
+                    className={`text-[9px] font-medium ${
+                      isLowDpi ? "text-amber-600" : "text-emerald-600"
+                    }`}
+                  >
+                    {effectiveDpi} DPI
+                  </span>
+                  {isLowDpi && (
+                    <span className="text-[9px] text-amber-600">
+                      (below {MIN_DPI} - may look pixelated)
+                    </span>
+                  )}
+                  {!isLowDpi && (
+                    <span className="text-[9px] text-emerald-600">
+                      (print ready)
+                    </span>
+                  )}
+                </div>
+              )}
+              {layer.imageWidth === 0 && (
+                <span className="text-[9px] text-gray-400 italic">
+                  Upload an image to see DPI info
+                </span>
+              )}
+              {isOverSize && (
+                <span className="text-[9px] text-red-500 font-medium">
+                  Exceeds max print area
+                </span>
+              )}
+            </div>
+          )
+        })()}
       </div>
     </div>
   )

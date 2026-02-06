@@ -113,13 +113,28 @@ export default function Customizer({
     }
   }
 
-  const handleDecals = (type: string, result: string) => {
+  const getImageDimensions = (
+    dataUrl: string
+  ): Promise<{ width: number; height: number }> => {
+    return new Promise((resolve) => {
+      const img = new window.Image()
+      img.crossOrigin = "anonymous"
+      img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight })
+      img.onerror = () => resolve({ width: 0, height: 0 })
+      img.src = dataUrl
+    })
+  }
+
+  const handleDecals = async (type: string, result: string) => {
     if (type === "image") {
-      // Apply to the last image layer
+      const dims = await getImageDimensions(result)
       const layers = state.imageDecals
       if (layers.length > 0) {
-        layers[layers.length - 1].url = result
-        layers[layers.length - 1].visible = true
+        const last = layers[layers.length - 1]
+        last.url = result
+        last.visible = true
+        last.imageWidth = dims.width
+        last.imageHeight = dims.height
       }
     } else {
       const decalType = DecalTypes[type]
@@ -168,7 +183,8 @@ export default function Customizer({
       ? [lastLayer.position[0] + 0.05, lastLayer.position[1] - 0.05, lastLayer.position[2]]
       : [0, 0, 0.15]
 
-    reader(file).then((res) => {
+    reader(file).then(async (res) => {
+      const dims = await getImageDimensions(res as string)
       state.imageDecals.push({
         id,
         label,
@@ -178,6 +194,8 @@ export default function Customizer({
         rotation: [0, 0, 0] as [number, number, number],
         scale: lastLayer?.scale ?? 0.15,
         side: "front" as "front" | "back",
+        imageWidth: dims.width,
+        imageHeight: dims.height,
       })
       state.selectedLayerId = id
       setActiveEditorTab("")
