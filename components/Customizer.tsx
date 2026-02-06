@@ -204,12 +204,14 @@ export default function Customizer({
     <AnimatePresence>
       {!snap.intro && (
         <>
+          {/* Left side: Editor tabs + Model tabs */}
           <motion.div
             key="custom"
             className="absolute top-0 left-0 z-10"
             {...slideAnimation("left")}
           >
-            <div className="flex items-center min-h-screen">
+            <div className="flex items-start min-h-screen gap-0 pt-4">
+              {/* Editor tools */}
               <div className="editortabs-container tabs">
                 {EditorTabs.map((tab) => (
                   <Tab
@@ -225,8 +227,22 @@ export default function Customizer({
                 ))}
                 {generateTabContent()}
               </div>
+              {/* Model selector docked to the right of editor tabs */}
+              <div className="modeltabs-container tabs ml-1">
+                <p className="text-[10px] text-gray-500 my-[-5px]">Models</p>
+                {modelTabs.map((tab) => (
+                  <Tab
+                    key={tab.name}
+                    tab={tab}
+                    handleClick={() => handleChangeModel(tab.name)}
+                    helperText={tab.helperText}
+                  />
+                ))}
+              </div>
             </div>
           </motion.div>
+
+          {/* Top right: Go Back button */}
           <motion.div
             className="absolute z-10 top-5 right-5"
             {...fadeAnimation}
@@ -238,16 +254,23 @@ export default function Customizer({
               customStyles="w-fit px-4 py-2.5 font-bold text-sm"
             />
           </motion.div>
+
+          {/* Right side: Image Layer Controls */}
           {snap.selectedLayerId && (
             <motion.div
-              className="absolute z-10 bottom-24 left-1/2 -translate-x-1/2"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
+              key="layercontrols"
+              className="absolute top-0 right-0 z-10"
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 50 }}
             >
-              <ImageLayerControls />
+              <div className="flex items-center min-h-screen pr-1">
+                <ImageLayerControls />
+              </div>
             </motion.div>
           )}
+
+          {/* Bottom: Filter tabs (Image layers + Texture + Download) */}
           <motion.div className="filtertabs-container" {...slideAnimation("up")}>
             {snap.imageDecals.map((layer) => (
               <Tab
@@ -278,25 +301,6 @@ export default function Customizer({
                 className="w-3/5 h-3/5 object-contain"
               />
             </button>
-          </motion.div>
-          <motion.div
-            key="modelsAI"
-            className="absolute top-0 right-0 z-10"
-            {...slideAnimation("right")}
-          >
-            <div className="flex items-center min-h-screen">
-              <div className="modeltabs-container tabs">
-                <p className="text-sm text-gray-500 my-[-5px]">Models</p>
-                {modelTabs.map((tab) => (
-                  <Tab
-                    key={tab.name}
-                    tab={tab}
-                    handleClick={() => handleChangeModel(tab.name)}
-                    helperText={tab.helperText}
-                  />
-                ))}
-              </div>
-            </div>
           </motion.div>
         </>
       )}

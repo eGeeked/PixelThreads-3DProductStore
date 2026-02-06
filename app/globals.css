@@ -54,7 +54,7 @@ body {
 }
 
 .modeltabs-container {
-  @apply glassmorphism w-16 border-[2px] rounded-lg flex flex-col justify-center items-center mr-1 py-4 gap-4;
+  @apply glassmorphism w-16 border-[2px] rounded-lg flex flex-col justify-center items-center py-4 gap-4;
 }
 
 .filtertabs-container {
@@ -114,5 +114,5 @@ input[type="file"] {
 }
 
 .imagelayer-controls {
-  @apply absolute left-full ml-3 glassmorphism p-3 w-[220px] rounded-md;
+  @apply glassmorphism p-3 w-[220px] rounded-md mr-1;
 }
