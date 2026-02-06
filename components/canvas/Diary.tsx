@@ -41,11 +41,7 @@ export default function Diary() {
                     map={fullTexture}
                   />
                 )}
-                <ImageDecalsGroup
-                  position={[-1, 0.5, -0.01]}
-                  rotation={[0, 0, 1.5]}
-                  scale={[0.7, 0.7, 0.1]}
-                />
+                <ImageDecalsGroup />
               </mesh>
             </group>
             <mesh

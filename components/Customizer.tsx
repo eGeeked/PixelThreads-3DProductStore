@@ -20,6 +20,7 @@ import ColorPicker from "./customizer/ColorPicker"
 import FilePicker from "./customizer/FilePicker"
 import AIPicker from "./customizer/AIPicker"
 import MouseMovement from "./customizer/MouseMovement"
+import ImageLayerControls from "./customizer/ImageLayerControls"
 
 interface CustomizerProps {
   mouseMovement: boolean
@@ -161,13 +162,23 @@ export default function Customizer({
     const label = `Image ${IMAGE_LABELS[nextIndex] || nextIndex + 1}`
     const id = `image${IMAGE_LABELS[nextIndex] || nextIndex + 1}`
 
+    // Offset new layers slightly from the last layer
+    const lastLayer = state.imageDecals[state.imageDecals.length - 1]
+    const basePos: [number, number, number] = lastLayer
+      ? [lastLayer.position[0] + 0.05, lastLayer.position[1] - 0.05, lastLayer.position[2]]
+      : [0, 0, 0.15]
+
     reader(file).then((res) => {
       state.imageDecals.push({
         id,
         label,
         url: res as string,
         visible: true,
+        position: basePos,
+        rotation: [0, 0, 0] as [number, number, number],
+        scale: lastLayer?.scale ?? 0.15,
       })
+      state.selectedLayerId = id
       setActiveEditorTab("")
     })
   }
@@ -227,6 +238,16 @@ export default function Customizer({
               customStyles="w-fit px-4 py-2.5 font-bold text-sm"
             />
           </motion.div>
+          {snap.selectedLayerId && (
+            <motion.div
+              className="absolute z-10 bottom-24 left-1/2 -translate-x-1/2"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+            >
+              <ImageLayerControls />
+            </motion.div>
+          )}
           <motion.div className="filtertabs-container" {...slideAnimation("up")}>
             {snap.imageDecals.map((layer) => (
               <Tab
@@ -234,7 +255,9 @@ export default function Customizer({
                 tab={{ name: layer.id, icon: "/assets/logo-tshirt.png" }}
                 isFilterTab
                 isActiveTab={layer.visible}
-                handleClick={() => handleToggleImageLayer(layer.id)}
+                handleClick={() => {
+                  state.selectedLayerId = layer.id
+                }}
                 helperText={layer.label}
               />
             ))}

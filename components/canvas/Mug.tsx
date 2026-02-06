@@ -33,11 +33,7 @@ export default function Mug() {
             map={fullTexture}
           />
         )}
-        <ImageDecalsGroup
-          position={[-0.05, 0, 0.08]}
-          rotation={[0.08, 1.5, 1.5]}
-          scale={0.05}
-        />
+        <ImageDecalsGroup />
       </mesh>
     </group>
   )

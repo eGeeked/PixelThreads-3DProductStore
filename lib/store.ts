@@ -5,6 +5,9 @@ export interface ImageLayer {
   label: string
   url: string
   visible: boolean
+  position: [number, number, number]
+  rotation: [number, number, number]
+  scale: number
 }
 
 const state = proxy({
@@ -13,12 +16,16 @@ const state = proxy({
   isFullTexture: false,
   fullDecal: "/texture.jpg",
   model: "tshirt",
+  selectedLayerId: "imageA" as string | null,
   imageDecals: [
     {
       id: "imageA",
       label: "Image A",
       url: "/catLogo.png",
       visible: true,
+      position: [0, 0.04, 0.15] as [number, number, number],
+      rotation: [0, 0, 0] as [number, number, number],
+      scale: 0.15,
     },
   ] as ImageLayer[],
 })

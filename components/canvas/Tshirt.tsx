@@ -36,11 +36,7 @@ export default function Tshirt() {
             map={fullTexture}
           />
         )}
-        <ImageDecalsGroup
-          position={[0.09, 0.14, 0.1]}
-          rotation={[0, 0, 0]}
-          scale={0.05}
-        />
+        <ImageDecalsGroup />
       </mesh>
       <mesh
         geometry={nodes.default002_1.geometry}

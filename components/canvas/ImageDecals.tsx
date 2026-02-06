@@ -8,7 +8,7 @@ interface ImageDecalProps {
   url: string
   position: [number, number, number]
   rotation: [number, number, number]
-  scale: number | [number, number, number]
+  scale: number
 }
 
 function SingleImageDecal({ url, position, rotation, scale }: ImageDecalProps) {
@@ -24,17 +24,7 @@ function SingleImageDecal({ url, position, rotation, scale }: ImageDecalProps) {
   )
 }
 
-interface ImageDecalsGroupProps {
-  position: [number, number, number]
-  rotation: [number, number, number]
-  scale: number | [number, number, number]
-}
-
-export default function ImageDecalsGroup({
-  position,
-  rotation,
-  scale,
-}: ImageDecalsGroupProps) {
+export default function ImageDecalsGroup() {
   const snap = useSnapshot(state)
 
   return (
@@ -45,9 +35,9 @@ export default function ImageDecalsGroup({
           <SingleImageDecal
             key={layer.id}
             url={layer.url}
-            position={position}
-            rotation={rotation}
-            scale={scale}
+            position={layer.position as [number, number, number]}
+            rotation={layer.rotation as [number, number, number]}
+            scale={layer.scale}
           />
         ))}
     </>
