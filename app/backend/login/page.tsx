@@ -9,7 +9,27 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+  const [seedStatus, setSeedStatus] = useState("")
+  const [seeding, setSeeding] = useState(false)
   const router = useRouter()
+
+  const handleSeedAdmin = async () => {
+    setSeeding(true)
+    setSeedStatus("")
+    try {
+      const res = await fetch("/api/admin/seed", { method: "POST" })
+      const data = await res.json()
+      if (res.ok) {
+        setSeedStatus(data.message || "Admin created! You can now sign in.")
+        setEmail("jordanmanders@gmail.com")
+      } else {
+        setSeedStatus(data.error || "Failed to create admin")
+      }
+    } catch (err: unknown) {
+      setSeedStatus(err instanceof Error ? err.message : "Network error")
+    }
+    setSeeding(false)
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -94,6 +114,24 @@ export default function AdminLoginPage() {
               {loading ? "Signing in..." : "Sign In"}
             </button>
           </form>
+
+          <div className="mt-6 pt-4 border-t border-gray-100">
+            <p className="text-[11px] text-gray-400 text-center mb-2">
+              First time? Set up the admin account.
+            </p>
+            <button
+              onClick={handleSeedAdmin}
+              disabled={seeding}
+              className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-md text-xs font-medium hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {seeding ? "Setting up..." : "Initialize Admin Account"}
+            </button>
+            {seedStatus && (
+              <p className="text-xs text-center mt-2 text-gray-500">
+                {seedStatus}
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </div>
