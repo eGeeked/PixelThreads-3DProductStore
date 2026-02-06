@@ -9,9 +9,10 @@ import {
   EditorTabs,
   FilterTabs,
   DecalTypes,
-  modelTabs,
+  modelTabs as fallbackModelTabs,
   IMAGE_LABELS,
 } from "@/lib/constants"
+import { useConfig } from "@/hooks/use-config"
 import type { ImageLayer } from "@/lib/store"
 import { fadeAnimation, slideAnimation } from "@/lib/motion"
 import CustomButton from "./customizer/CustomButton"
@@ -32,6 +33,8 @@ export default function Customizer({
   handleMouseMove,
 }: CustomizerProps) {
   const snap = useSnapshot(state)
+  const { modelTabs: dbModelTabs, getModelOptions } = useConfig()
+  const currentModelTabs = dbModelTabs ?? fallbackModelTabs
   const [file, setFile] = useState<File | string>("")
   const [prompt, setPrompt] = useState("")
   const [generatingImg, setGeneratingImg] = useState(false)
@@ -233,7 +236,7 @@ export default function Customizer({
               {/* Model selector (leftmost) */}
               <div className="modeltabs-container tabs ml-1">
                 <p className="text-[10px] text-gray-500 my-[-5px]">Models</p>
-                {modelTabs.map((tab) => (
+                {currentModelTabs.map((tab) => (
                   <Tab
                     key={tab.name}
                     tab={tab}
@@ -244,7 +247,18 @@ export default function Customizer({
               </div>
               {/* Editor tools (to the right of models) */}
               <div className="editortabs-container tabs ml-1">
-                {EditorTabs.map((tab) => (
+                {EditorTabs.filter((tab) => {
+                  const enabledOptions = getModelOptions(snap.model)
+                  if (enabledOptions.length === 0) return true // fallback: show all
+                  const tabToOption: Record<string, string> = {
+                    colorpicker: "color",
+                    filepicker: "file",
+                    aipicker: "ai",
+                    mouseMovement: "color", // always show mouse if color is on
+                  }
+                  const key = tabToOption[tab.name]
+                  return !key || enabledOptions.includes(key)
+                }).map((tab) => (
                   <Tab
                     key={tab.name}
                     tab={tab}

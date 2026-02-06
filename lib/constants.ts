@@ -66,6 +66,7 @@ export const IMAGE_LABELS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 // Print area limits per model in inches, and the 3D scale that maps to max print size
 // maxScale is the decal scale value that corresponds to the max print dimension
+// Mutable at runtime - overwritten by Supabase config on load
 export const PRINT_LIMITS: Record<
   string,
   { maxWidthIn: number; maxHeightIn: number; maxScale: number; scaleToInches: number }
