@@ -1,6 +1,6 @@
 "use client"
 
-import { Suspense, useEffect } from "react"
+import { Suspense } from "react"
 import { Canvas } from "@react-three/fiber"
 import { Environment } from "@react-three/drei"
 import { useSnapshot } from "valtio"
@@ -34,17 +34,6 @@ function ModelSwitch() {
 }
 
 export default function CanvasModel({ mouseMovement }: CanvasModelProps) {
-  useEffect(() => {
-    fetch("/shirt_baked.glb").then(res => {
-      console.log("[v0] GLB fetch status:", res.status, "content-type:", res.headers.get("content-type"), "url:", res.url)
-      return res.arrayBuffer()
-    }).then(buf => {
-      const arr = new Uint8Array(buf)
-      const magic = String.fromCharCode(arr[0], arr[1], arr[2], arr[3])
-      console.log("[v0] GLB first 4 bytes (magic):", magic, "size:", buf.byteLength)
-    }).catch(e => console.log("[v0] GLB fetch error:", e))
-  }, [])
-
   return (
     <Canvas
       shadows
