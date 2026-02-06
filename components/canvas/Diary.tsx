@@ -8,7 +8,7 @@ import state from "@/lib/store"
 
 export default function Diary() {
   const snap = useSnapshot(state)
-  const { nodes, materials } = useGLTF("/api/models/low_poly_bookdiary.glb") as any
+  const { nodes, materials } = useGLTF("/low_poly_bookdiary.glb") as any
   const logoTexture = useTexture(snap.logoDecal)
   const fullTexture = useTexture(snap.fullDecal)
 
