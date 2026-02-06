@@ -31,8 +31,6 @@ export default function Mug() {
             rotation={[0, 1, 0]}
             scale={0.5}
             map={fullTexture}
-            depthTest={true}
-            depthWrite={true}
           />
         )}
         {snap.isLogoTexture && (
@@ -42,8 +40,6 @@ export default function Mug() {
             scale={0.05}
             map={logoTexture}
             map-anisotropy={16}
-            depthTest={false}
-            depthWrite={true}
           />
         )}
       </mesh>

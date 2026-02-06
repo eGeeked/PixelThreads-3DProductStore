@@ -34,8 +34,6 @@ export default function Tshirt() {
             rotation={[0, 0, 0]}
             scale={1}
             map={fullTexture}
-            depthTest={true}
-            depthWrite={true}
           />
         )}
         {snap.isLogoTexture && (
@@ -45,8 +43,6 @@ export default function Tshirt() {
             scale={0.05}
             map={logoTexture}
             map-anisotropy={16}
-            depthTest={false}
-            depthWrite={true}
           />
         )}
       </mesh>

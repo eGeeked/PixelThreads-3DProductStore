@@ -39,8 +39,6 @@ export default function Diary() {
                     rotation={[0, 1, 0]}
                     scale={3.5}
                     map={fullTexture}
-                    depthTest={true}
-                    depthWrite={true}
                   />
                 )}
                 {snap.isLogoTexture && (
@@ -50,8 +48,6 @@ export default function Diary() {
                     scale={[0.7, 0.7, 0.1]}
                     map={logoTexture}
                     map-anisotropy={16}
-                    depthTest={false}
-                    depthWrite={true}
                   />
                 )}
               </mesh>
@@ -66,8 +62,6 @@ export default function Diary() {
                   rotation={[0, 1, 0]}
                   scale={3}
                   map={fullTexture}
-                  depthTest={true}
-                  depthWrite={true}
                 />
               )}
             </mesh>
