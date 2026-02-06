@@ -122,7 +122,7 @@ export default function ImageLayerControls() {
         <p className="text-[10px] font-medium text-gray-500 uppercase tracking-wide mb-1">
           Move
         </p>
-        {/* Horizontal (X position) */}
+        {/* Horizontal (X position) - invert when on back */}
         <div className="flex items-center gap-1.5 mb-1">
           <svg width="12" height="12" viewBox="0 0 16 16" className="text-gray-400 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5">
             <line x1="1" y1="8" x2="15" y2="8" />
@@ -134,8 +134,11 @@ export default function ImageLayerControls() {
             min={-1}
             max={1}
             step={0.01}
-            value={layer.position[0]}
-            onChange={(e) => updatePosition(0, parseFloat(e.target.value))}
+            value={layer.side === "back" ? -layer.position[0] : layer.position[0]}
+            onChange={(e) => {
+              const raw = parseFloat(e.target.value)
+              updatePosition(0, layer.side === "back" ? -raw : raw)
+            }}
             className="flex-1 h-1 accent-gray-800"
           />
           <span className="text-[10px] text-gray-500 w-8 text-right font-mono">
