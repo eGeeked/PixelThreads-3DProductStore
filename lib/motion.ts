@@ -1,4 +1,5 @@
-export const transition = { type: "spring", duration: 0.8 }
+/* eslint-disable @typescript-eslint/no-explicit-any */
+const transition = { type: "spring", duration: 0.8 }
 
 export const slideAnimation = (direction: string) => {
   return {
@@ -19,7 +20,7 @@ export const slideAnimation = (direction: string) => {
       y: direction === "up" ? 100 : direction === "down" ? -100 : 0,
       transition: { ...transition, delay: 0 },
     },
-  }
+  } as any
 }
 
 export const fadeAnimation = {
@@ -35,7 +36,7 @@ export const fadeAnimation = {
     opacity: 0,
     transition: { ...transition, delay: 0 },
   },
-}
+} as any
 
 export const headTextAnimation = {
   initial: { x: 100, opacity: 0 },
@@ -47,7 +48,7 @@ export const headTextAnimation = {
     restDelta: 0.001,
     duration: 0.3,
   },
-}
+} as any
 
 export const headContentAnimation = {
   initial: { y: 100, opacity: 0 },
@@ -61,10 +62,10 @@ export const headContentAnimation = {
     delay: 0.2,
     delayChildren: 0.2,
   },
-}
+} as any
 
 export const headContainerAnimation = {
   initial: { x: -100, opacity: 0, transition: { ...transition, delay: 0.5 } },
   animate: { x: 0, opacity: 1, transition: { ...transition, delay: 0 } },
   exit: { x: -100, opacity: 0, transition: { ...transition, delay: 0 } },
-}
+} as any

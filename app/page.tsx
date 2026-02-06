@@ -4,6 +4,7 @@ import { useState } from "react"
 import dynamic from "next/dynamic"
 import Home from "@/components/Home"
 import Customizer from "@/components/Customizer"
+import CanvasErrorBoundary from "@/components/canvas/CanvasErrorBoundary"
 
 const CanvasModel = dynamic(
   () => import("@/components/canvas/CanvasModel"),
@@ -20,7 +21,9 @@ export default function Page() {
   return (
     <main className="app transition-all ease-in">
       <Home />
-      <CanvasModel mouseMovement={mouseMovement} />
+      <CanvasErrorBoundary>
+        <CanvasModel mouseMovement={mouseMovement} />
+      </CanvasErrorBoundary>
       <Customizer
         mouseMovement={mouseMovement}
         handleMouseMove={handleMouseMove}
