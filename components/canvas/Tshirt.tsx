@@ -5,6 +5,7 @@ import { useFrame } from "@react-three/fiber"
 import { Decal, useGLTF, useTexture } from "@react-three/drei"
 import { easing } from "maath"
 import state from "@/lib/store"
+import ImageDecalsGroup from "./ImageDecals"
 
 export default function Tshirt() {
   const snap = useSnapshot(state)
@@ -12,7 +13,6 @@ export default function Tshirt() {
   materials["Polo Shirt"].map = null
   materials["Button"].color = { r: 0, g: 0, b: 0 }
 
-  const logoTexture = useTexture(snap.logoDecal)
   const fullTexture = useTexture(snap.fullDecal)
 
   useFrame((_state, delta) =>
@@ -36,15 +36,11 @@ export default function Tshirt() {
             map={fullTexture}
           />
         )}
-        {snap.isLogoTexture && (
-          <Decal
-            position={[0.09, 0.14, 0.1]}
-            rotation={[0, 0, 0]}
-            scale={0.05}
-            map={logoTexture}
-            map-anisotropy={16}
-          />
-        )}
+        <ImageDecalsGroup
+          position={[0.09, 0.14, 0.1]}
+          rotation={[0, 0, 0]}
+          scale={0.05}
+        />
       </mesh>
       <mesh
         geometry={nodes.default002_1.geometry}

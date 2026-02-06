@@ -1,14 +1,20 @@
 "use client"
 
+import { useSnapshot } from "valtio"
+import state from "@/lib/store"
 import CustomButton from "./CustomButton"
 
 interface FilePickerProps {
   file: File | string
   setFile: (file: File) => void
   readFile: (type: string) => void
+  onAddImageLayer: () => void
 }
 
-export default function FilePicker({ file, setFile, readFile }: FilePickerProps) {
+export default function FilePicker({ file, setFile, readFile, onAddImageLayer }: FilePickerProps) {
+  const snap = useSnapshot(state)
+  const lastLayer = snap.imageDecals[snap.imageDecals.length - 1]
+
   return (
     <div className="filepicker-container">
       <div className="flex-1 flex flex-col">
@@ -27,17 +33,23 @@ export default function FilePicker({ file, setFile, readFile }: FilePickerProps)
           {file === "" ? "No file chosen" : typeof file === "string" ? file : file.name}
         </p>
       </div>
-      <div className="mt-4 flex flex-wrap gap-3">
+      <div className="mt-4 flex flex-wrap gap-2">
         <CustomButton
           type="outline"
-          title="Logo"
-          handleClick={() => readFile("logo")}
+          title={lastLayer?.label ?? "Image A"}
+          handleClick={() => readFile("image")}
           customStyles="text-xs"
         />
         <CustomButton
           type="filled"
           title="Texture"
           handleClick={() => readFile("full")}
+          customStyles="text-xs"
+        />
+        <CustomButton
+          type="outline"
+          title="+ Add Image"
+          handleClick={onAddImageLayer}
           customStyles="text-xs"
         />
       </div>

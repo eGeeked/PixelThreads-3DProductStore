@@ -5,11 +5,11 @@ import { useFrame } from "@react-three/fiber"
 import { Decal, useGLTF, useTexture } from "@react-three/drei"
 import { easing } from "maath"
 import state from "@/lib/store"
+import ImageDecalsGroup from "./ImageDecals"
 
 export default function Diary() {
   const snap = useSnapshot(state)
   const { nodes, materials } = useGLTF("/api/models/low_poly_bookdiary.glb") as any
-  const logoTexture = useTexture(snap.logoDecal)
   const fullTexture = useTexture(snap.fullDecal)
 
   useFrame((_state, delta) =>
@@ -41,15 +41,11 @@ export default function Diary() {
                     map={fullTexture}
                   />
                 )}
-                {snap.isLogoTexture && (
-                  <Decal
-                    position={[-1, 0.5, -0.01]}
-                    rotation={[0, 0, 1.5]}
-                    scale={[0.7, 0.7, 0.1]}
-                    map={logoTexture}
-                    map-anisotropy={16}
-                  />
-                )}
+                <ImageDecalsGroup
+                  position={[-1, 0.5, -0.01]}
+                  rotation={[0, 0, 1.5]}
+                  scale={[0.7, 0.7, 0.1]}
+                />
               </mesh>
             </group>
             <mesh

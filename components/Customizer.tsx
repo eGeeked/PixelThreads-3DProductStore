@@ -10,7 +10,9 @@ import {
   FilterTabs,
   DecalTypes,
   modelTabs,
+  IMAGE_LABELS,
 } from "@/lib/constants"
+import type { ImageLayer } from "@/lib/store"
 import { fadeAnimation, slideAnimation } from "@/lib/motion"
 import CustomButton from "./customizer/CustomButton"
 import Tab from "./customizer/Tab"
@@ -36,7 +38,6 @@ export default function Customizer({
   const [activeFilterTab, setActiveFilterTab] = useState<
     Record<string, boolean>
   >({
-    logoShirt: true,
     stylishShirt: false,
   })
   const [activeModelTab, setActiveModelTab] = useState<
@@ -52,7 +53,12 @@ export default function Customizer({
         return <ColorPicker />
       case "filepicker":
         return (
-          <FilePicker file={file} setFile={setFile} readFile={readFile} />
+          <FilePicker
+            file={file}
+            setFile={setFile}
+            readFile={readFile}
+            onAddImageLayer={handleAddImageLayer}
+          />
         )
       case "aipicker":
         return (
@@ -107,24 +113,29 @@ export default function Customizer({
   }
 
   const handleDecals = (type: string, result: string) => {
-    const decalType = DecalTypes[type]
-    ;(state as any)[decalType.stateProperty] = result
+    if (type === "image") {
+      // Apply to the last image layer
+      const layers = state.imageDecals
+      if (layers.length > 0) {
+        layers[layers.length - 1].url = result
+        layers[layers.length - 1].visible = true
+      }
+    } else {
+      const decalType = DecalTypes[type]
+      ;(state as any)[decalType.stateProperty] = result
 
-    if (!activeFilterTab[decalType.filterTab]) {
-      handleActiveFilterTab(decalType.filterTab)
+      if (!activeFilterTab[decalType.filterTab]) {
+        handleActiveFilterTab(decalType.filterTab)
+      }
     }
   }
 
   const handleActiveFilterTab = (tabName: string) => {
     switch (tabName) {
-      case "logoShirt":
-        state.isLogoTexture = !activeFilterTab[tabName]
-        break
       case "stylishShirt":
         state.isFullTexture = !activeFilterTab[tabName]
         break
       default:
-        state.isLogoTexture = true
         state.isFullTexture = false
         break
     }
@@ -134,6 +145,30 @@ export default function Customizer({
         ...prevState,
         [tabName]: !prevState[tabName],
       }
+    })
+  }
+
+  const handleToggleImageLayer = (layerId: string) => {
+    const layer = state.imageDecals.find((l) => l.id === layerId)
+    if (layer) {
+      layer.visible = !layer.visible
+    }
+  }
+
+  const handleAddImageLayer = () => {
+    if (typeof file === "string" || !file) return
+    const nextIndex = state.imageDecals.length
+    const label = `Image ${IMAGE_LABELS[nextIndex] || nextIndex + 1}`
+    const id = `image${IMAGE_LABELS[nextIndex] || nextIndex + 1}`
+
+    reader(file).then((res) => {
+      state.imageDecals.push({
+        id,
+        label,
+        url: res as string,
+        visible: true,
+      })
+      setActiveEditorTab("")
     })
   }
 
@@ -193,6 +228,16 @@ export default function Customizer({
             />
           </motion.div>
           <motion.div className="filtertabs-container" {...slideAnimation("up")}>
+            {snap.imageDecals.map((layer) => (
+              <Tab
+                key={layer.id}
+                tab={{ name: layer.id, icon: "/assets/logo-tshirt.png" }}
+                isFilterTab
+                isActiveTab={layer.visible}
+                handleClick={() => handleToggleImageLayer(layer.id)}
+                helperText={layer.label}
+              />
+            ))}
             {FilterTabs.map((tab) => (
               <Tab
                 key={tab.name}

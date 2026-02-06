@@ -23,11 +23,6 @@ export const EditorTabs = [
 
 export const FilterTabs = [
   {
-    name: "logoShirt",
-    icon: "/assets/logo-tshirt.png",
-    helperText: "Logo",
-  },
-  {
     name: "stylishShirt",
     icon: "/assets/stylish-tshirt.png",
     helperText: "Texture",
@@ -61,12 +56,10 @@ export const DecalTypes: Record<
   string,
   { stateProperty: string; filterTab: string }
 > = {
-  logo: {
-    stateProperty: "logoDecal",
-    filterTab: "logoShirt",
-  },
   full: {
     stateProperty: "fullDecal",
     filterTab: "stylishShirt",
   },
 }
+
+export const IMAGE_LABELS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
