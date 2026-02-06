@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { AnimatePresence, motion } from "framer-motion"
+import { AnimatePresence, motion } from "motion/react"
 import { useSnapshot } from "valtio"
 import state from "@/lib/store"
 import { downloadCanvasToImage, reader } from "@/lib/helpers"
