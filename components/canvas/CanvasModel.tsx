@@ -1,7 +1,8 @@
 "use client"
 
+import { Suspense } from "react"
 import { Canvas } from "@react-three/fiber"
-import { Environment, Center } from "@react-three/drei"
+import { Environment } from "@react-three/drei"
 import { useSnapshot } from "valtio"
 import state from "@/lib/store"
 import Backdrop from "./Backdrop"
@@ -15,24 +16,24 @@ interface CanvasModelProps {
   mouseMovement: boolean
 }
 
-export default function CanvasModel({ mouseMovement }: CanvasModelProps) {
+function ModelSwitch() {
   const snap = useSnapshot(state)
 
-  const generateModel = () => {
-    switch (snap.model) {
-      case "tshirt":
-        return <Shirt key="tshirt" />
-      case "poloShirt":
-        return <Tshirt key="poloShirt" />
-      case "mug":
-        return <Mug key="mug" />
-      case "diary":
-        return <Diary key="diary" />
-      default:
-        return null
-    }
+  switch (snap.model) {
+    case "tshirt":
+      return <Shirt key="tshirt" />
+    case "poloShirt":
+      return <Tshirt key="poloShirt" />
+    case "mug":
+      return <Mug key="mug" />
+    case "diary":
+      return <Diary key="diary" />
+    default:
+      return null
   }
+}
 
+export default function CanvasModel({ mouseMovement }: CanvasModelProps) {
   return (
     <Canvas
       shadows
@@ -40,13 +41,15 @@ export default function CanvasModel({ mouseMovement }: CanvasModelProps) {
       gl={{ preserveDrawingBuffer: true }}
       className="w-full max-w-full h-full transition-all ease-in"
     >
-      <Backdrop />
       <ambientLight intensity={0.5} />
       <directionalLight castShadow position={[0, 0, 5]} intensity={0.7} />
       <Environment preset="city" />
-      <CameraRig rotateWithClick={mouseMovement}>
-        {generateModel()}
-      </CameraRig>
+      <Suspense fallback={null}>
+        <Backdrop />
+        <CameraRig rotateWithClick={mouseMovement}>
+          <ModelSwitch />
+        </CameraRig>
+      </Suspense>
     </Canvas>
   )
 }

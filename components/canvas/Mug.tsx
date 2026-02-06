@@ -8,7 +8,7 @@ import state from "@/lib/store"
 
 export default function Mug() {
   const snap = useSnapshot(state)
-  const { nodes, materials } = useGLTF("/mug.glb") as any
+  const { nodes, materials } = useGLTF("/api/models/mug.glb") as any
   const logoTexture = useTexture(snap.logoDecal)
   const fullTexture = useTexture(snap.fullDecal)
 
