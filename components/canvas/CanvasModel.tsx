@@ -1,6 +1,6 @@
 "use client"
 
-import { Suspense } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { Canvas } from "@react-three/fiber"
 import { Environment } from "@react-three/drei"
 import { useSnapshot } from "valtio"
@@ -34,6 +34,37 @@ function ModelSwitch() {
 }
 
 export default function CanvasModel({ mouseMovement }: CanvasModelProps) {
+  const [debugInfo, setDebugInfo] = useState("")
+
+  useEffect(() => {
+    // Debug: test fetching the GLB file to see what we actually get back
+    fetch("/shirt_baked.glb").then(async (res) => {
+      const contentType = res.headers.get("content-type") || "unknown"
+      const buf = await res.arrayBuffer()
+      const bytes = new Uint8Array(buf)
+      const first4 = String.fromCharCode(bytes[0], bytes[1], bytes[2], bytes[3])
+      const info = `status=${res.status} type=${contentType} size=${buf.byteLength} magic="${first4}"`
+      console.log("[v0] GLB direct fetch:", info)
+      setDebugInfo(info)
+    }).catch(e => {
+      console.log("[v0] GLB direct fetch error:", e)
+      setDebugInfo("fetch error: " + e.message)
+    })
+
+    // Also test the API route
+    fetch("/api/models/shirt_baked.glb").then(async (res) => {
+      const contentType = res.headers.get("content-type") || "unknown"
+      const buf = await res.arrayBuffer()
+      const bytes = new Uint8Array(buf)
+      const first4 = String.fromCharCode(bytes[0], bytes[1], bytes[2], bytes[3])
+      console.log("[v0] GLB API route fetch: status=" + res.status, "type=" + contentType, "size=" + buf.byteLength, 'magic="' + first4 + '"')
+    }).catch(e => {
+      console.log("[v0] GLB API route fetch error:", e)
+    })
+  }, [])
+
+  console.log("[v0] CanvasModel rendering, debugInfo:", debugInfo)
+
   return (
     <Canvas
       shadows
