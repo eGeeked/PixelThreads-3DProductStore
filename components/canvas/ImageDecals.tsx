@@ -31,20 +31,20 @@ function SingleImageDecal({ url, position, rotation, scale, side }: ImageDecalPr
 
   // Aspect-ratio-aware scale so the decal projection box always matches
   // the image proportions — prevents clipping at any scale.
+  // Z-depth is kept very shallow (0.05) so the projection doesn't bleed
+  // through to the opposite side of the mesh.
   const decalScale = useMemo((): [number, number, number] => {
+    const DEPTH = 0.05
     const img = texture.image as HTMLImageElement | undefined
     if (img && img.naturalWidth && img.naturalHeight) {
       const aspect = img.naturalWidth / img.naturalHeight
       if (aspect >= 1) {
-        // Landscape or square: width = scale, height = scale / aspect
-        return [scale, scale / aspect, 1]
+        return [scale, scale / aspect, DEPTH]
       } else {
-        // Portrait: height = scale, width = scale * aspect
-        return [scale * aspect, scale, 1]
+        return [scale * aspect, scale, DEPTH]
       }
     }
-    // Fallback: square
-    return [scale, scale, 1]
+    return [scale, scale, DEPTH]
   }, [texture, scale])
 
   return (
@@ -54,7 +54,6 @@ function SingleImageDecal({ url, position, rotation, scale, side }: ImageDecalPr
       scale={decalScale}
       map={displayTexture}
       map-anisotropy={16}
-      depthTest={false}
       polygonOffsetFactor={-1}
     />
   )
