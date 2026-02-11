@@ -5,12 +5,12 @@ import { useFrame } from "@react-three/fiber"
 import { Decal, useGLTF, useTexture } from "@react-three/drei"
 import { easing } from "maath"
 import state from "@/lib/store"
+import ImageDecalsGroup from "./ImageDecals"
 
 export default function Shirt() {
   const snap = useSnapshot(state)
-  const { nodes, materials } = useGLTF("/shirt_baked.glb") as any
+  const { nodes, materials } = useGLTF("/api/models/shirt_baked.glb") as any
 
-  const logoTexture = useTexture(snap.logoDecal)
   const fullTexture = useTexture(snap.fullDecal)
 
   useFrame((_state, delta) =>
@@ -32,21 +32,9 @@ export default function Shirt() {
             rotation={[0, 0, 0]}
             scale={1}
             map={fullTexture}
-            depthTest={true}
-            depthWrite={true}
           />
         )}
-        {snap.isLogoTexture && (
-          <Decal
-            position={[0, 0.04, 0.15]}
-            rotation={[0, 0, 0]}
-            scale={0.15}
-            map={logoTexture}
-            map-anisotropy={16}
-            depthTest={false}
-            depthWrite={true}
-          />
-        )}
+        <ImageDecalsGroup />
       </mesh>
     </group>
   )

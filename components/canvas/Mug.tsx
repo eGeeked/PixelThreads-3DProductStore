@@ -5,11 +5,11 @@ import { useFrame } from "@react-three/fiber"
 import { Decal, useGLTF, useTexture } from "@react-three/drei"
 import { easing } from "maath"
 import state from "@/lib/store"
+import ImageDecalsGroup from "./ImageDecals"
 
 export default function Mug() {
   const snap = useSnapshot(state)
-  const { nodes, materials } = useGLTF("/mug.glb") as any
-  const logoTexture = useTexture(snap.logoDecal)
+  const { nodes, materials } = useGLTF("/api/models/mug.glb") as any
   const fullTexture = useTexture(snap.fullDecal)
 
   useFrame((_state, delta) =>
@@ -31,21 +31,9 @@ export default function Mug() {
             rotation={[0, 1, 0]}
             scale={0.5}
             map={fullTexture}
-            depthTest={true}
-            depthWrite={true}
           />
         )}
-        {snap.isLogoTexture && (
-          <Decal
-            position={[-0.05, 0, 0.08]}
-            rotation={[0.08, 1.5, 1.5]}
-            scale={0.05}
-            map={logoTexture}
-            map-anisotropy={16}
-            depthTest={false}
-            depthWrite={true}
-          />
-        )}
+        <ImageDecalsGroup />
       </mesh>
     </group>
   )

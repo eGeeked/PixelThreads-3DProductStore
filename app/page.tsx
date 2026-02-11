@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import dynamic from "next/dynamic"
 import Home from "@/components/Home"
 import Customizer from "@/components/Customizer"
@@ -12,22 +11,13 @@ const CanvasModel = dynamic(
 )
 
 export default function Page() {
-  const [mouseMovement, setMouseMovement] = useState(false)
-
-  const handleMouseMove = () => {
-    setMouseMovement(!mouseMovement)
-  }
-
   return (
     <main className="app transition-all ease-in">
       <Home />
       <CanvasErrorBoundary>
-        <CanvasModel mouseMovement={mouseMovement} />
+        <CanvasModel />
       </CanvasErrorBoundary>
-      <Customizer
-        mouseMovement={mouseMovement}
-        handleMouseMove={handleMouseMove}
-      />
+      <Customizer />
     </main>
   )
 }

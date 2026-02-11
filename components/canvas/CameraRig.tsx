@@ -8,38 +8,33 @@ import state from "@/lib/store"
 
 interface CameraRigProps {
   children: ReactNode
-  rotateWithClick: boolean
 }
 
-export default function CameraRig({ children, rotateWithClick }: CameraRigProps) {
+export default function CameraRig({ children }: CameraRigProps) {
   const group = useRef<any>(null)
   const snap = useSnapshot(state)
   const three = useThree()
 
-  const [isMouseDown, setIsMouseDown] = useState(false)
+  const [isDragging, setIsDragging] = useState(false)
   const [prevMouseX, setPrevMouseX] = useState(0)
 
-  const handleMouseDown = (e: any) => {
-    setIsMouseDown(true)
+  const handlePointerDown = (e: any) => {
+    setIsDragging(true)
     setPrevMouseX(e.clientX)
-    updateCursor("grabbing")
+    three.gl.domElement.style.cursor = "grabbing"
   }
 
-  const handleMouseUp = () => {
-    setIsMouseDown(false)
-    updateCursor("pointer")
+  const handlePointerUp = () => {
+    setIsDragging(false)
+    three.gl.domElement.style.cursor = "grab"
   }
 
-  const handleMouseMove = (e: any) => {
-    if (isMouseDown && rotateWithClick) {
+  const handlePointerMove = (e: any) => {
+    if (isDragging && group.current) {
       const deltaX = e.clientX - prevMouseX
       group.current.rotation.y += deltaX * 0.01
       setPrevMouseX(e.clientX)
     }
-  }
-
-  const updateCursor = (cursor: string) => {
-    three.gl.domElement.style.cursor = cursor
   }
 
   useFrame((frameState, delta) => {
@@ -61,10 +56,10 @@ export default function CameraRig({ children, rotateWithClick }: CameraRigProps)
   return (
     <group
       ref={group}
-      onPointerDown={handleMouseDown}
-      onPointerUp={handleMouseUp}
-      onPointerMove={handleMouseMove}
-      onClick={() => setIsMouseDown(false)}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onPointerMove={handlePointerMove}
+      onPointerLeave={handlePointerUp}
     >
       {children}
     </group>

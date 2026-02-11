@@ -9,26 +9,24 @@ import {
   EditorTabs,
   FilterTabs,
   DecalTypes,
-  modelTabs,
+  modelTabs as fallbackModelTabs,
+  IMAGE_LABELS,
 } from "@/lib/constants"
+import { useConfig } from "@/hooks/use-config"
+import type { ImageLayer } from "@/lib/store"
 import { fadeAnimation, slideAnimation } from "@/lib/motion"
 import CustomButton from "./customizer/CustomButton"
 import Tab from "./customizer/Tab"
 import ColorPicker from "./customizer/ColorPicker"
 import FilePicker from "./customizer/FilePicker"
 import AIPicker from "./customizer/AIPicker"
-import MouseMovement from "./customizer/MouseMovement"
 
-interface CustomizerProps {
-  mouseMovement: boolean
-  handleMouseMove: () => void
-}
+import ImageLayerControls from "./customizer/ImageLayerControls"
 
-export default function Customizer({
-  mouseMovement,
-  handleMouseMove,
-}: CustomizerProps) {
+export default function Customizer() {
   const snap = useSnapshot(state)
+  const { modelTabs: dbModelTabs, getModelOptions } = useConfig()
+  const currentModelTabs = dbModelTabs ?? fallbackModelTabs
   const [file, setFile] = useState<File | string>("")
   const [prompt, setPrompt] = useState("")
   const [generatingImg, setGeneratingImg] = useState(false)
@@ -36,7 +34,6 @@ export default function Customizer({
   const [activeFilterTab, setActiveFilterTab] = useState<
     Record<string, boolean>
   >({
-    logoShirt: true,
     stylishShirt: false,
   })
   const [activeModelTab, setActiveModelTab] = useState<
@@ -52,7 +49,12 @@ export default function Customizer({
         return <ColorPicker />
       case "filepicker":
         return (
-          <FilePicker file={file} setFile={setFile} readFile={readFile} />
+          <FilePicker
+            file={file}
+            setFile={setFile}
+            readFile={readFile}
+            onAddImageLayer={handleAddImageLayer}
+          />
         )
       case "aipicker":
         return (
@@ -63,21 +65,10 @@ export default function Customizer({
             handleSubmit={handleSubmit}
           />
         )
-      case "mouseMovement":
-        return (
-          <MouseMovement
-            mouseMovement={mouseMovement}
-            handleMouseSubmit={handleMouseSubmit}
-          />
-        )
+
       default:
         return null
     }
-  }
-
-  const handleMouseSubmit = () => {
-    handleMouseMove()
-    setActiveEditorTab("")
   }
 
   const handleSubmit = async (type: string) => {
@@ -106,25 +97,45 @@ export default function Customizer({
     }
   }
 
-  const handleDecals = (type: string, result: string) => {
-    const decalType = DecalTypes[type]
-    ;(state as any)[decalType.stateProperty] = result
+  const getImageDimensions = (
+    dataUrl: string
+  ): Promise<{ width: number; height: number }> => {
+    return new Promise((resolve) => {
+      const img = new window.Image()
+      img.crossOrigin = "anonymous"
+      img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight })
+      img.onerror = () => resolve({ width: 0, height: 0 })
+      img.src = dataUrl
+    })
+  }
 
-    if (!activeFilterTab[decalType.filterTab]) {
-      handleActiveFilterTab(decalType.filterTab)
+  const handleDecals = async (type: string, result: string) => {
+    if (type === "image") {
+      const dims = await getImageDimensions(result)
+      const layers = state.imageDecals
+      if (layers.length > 0) {
+        const last = layers[layers.length - 1]
+        last.url = result
+        last.visible = true
+        last.imageWidth = dims.width
+        last.imageHeight = dims.height
+      }
+    } else {
+      const decalType = DecalTypes[type]
+      ;(state as any)[decalType.stateProperty] = result
+
+      if (!activeFilterTab[decalType.filterTab]) {
+        handleActiveFilterTab(decalType.filterTab)
+      }
     }
   }
 
   const handleActiveFilterTab = (tabName: string) => {
     switch (tabName) {
-      case "logoShirt":
-        state.isLogoTexture = !activeFilterTab[tabName]
-        break
       case "stylishShirt":
         state.isFullTexture = !activeFilterTab[tabName]
         break
       default:
-        state.isLogoTexture = true
         state.isFullTexture = false
         break
     }
@@ -134,6 +145,44 @@ export default function Customizer({
         ...prevState,
         [tabName]: !prevState[tabName],
       }
+    })
+  }
+
+  const handleToggleImageLayer = (layerId: string) => {
+    const layer = state.imageDecals.find((l) => l.id === layerId)
+    if (layer) {
+      layer.visible = !layer.visible
+    }
+  }
+
+  const handleAddImageLayer = () => {
+    if (typeof file === "string" || !file) return
+    const nextIndex = state.imageDecals.length
+    const label = `Image ${IMAGE_LABELS[nextIndex] || nextIndex + 1}`
+    const id = `image${IMAGE_LABELS[nextIndex] || nextIndex + 1}`
+
+    // Offset new layers slightly from the last layer
+    const lastLayer = state.imageDecals[state.imageDecals.length - 1]
+    const basePos: [number, number, number] = lastLayer
+      ? [lastLayer.position[0] + 0.05, lastLayer.position[1] - 0.05, lastLayer.position[2]]
+      : [0, 0, 0.15]
+
+    reader(file).then(async (res) => {
+      const dims = await getImageDimensions(res as string)
+      state.imageDecals.push({
+        id,
+        label,
+        url: res as string,
+        visible: true,
+        position: basePos,
+        rotation: [0, 0, 0] as [number, number, number],
+        scale: lastLayer?.scale ?? 0.15,
+        side: "front" as "front" | "back",
+        imageWidth: dims.width,
+        imageHeight: dims.height,
+      })
+      state.selectedLayerId = id
+      setActiveEditorTab("")
     })
   }
 
@@ -158,14 +207,38 @@ export default function Customizer({
     <AnimatePresence>
       {!snap.intro && (
         <>
+          {/* Left side: Model tabs + Editor tabs, vertically centered */}
           <motion.div
             key="custom"
             className="absolute top-0 left-0 z-10"
             {...slideAnimation("left")}
           >
-            <div className="flex items-center min-h-screen">
-              <div className="editortabs-container tabs">
-                {EditorTabs.map((tab) => (
+            <div className="flex items-center min-h-screen gap-0">
+              {/* Model selector (leftmost) */}
+              <div className="modeltabs-container tabs ml-1">
+                <p className="text-[10px] text-gray-500 my-[-5px]">Models</p>
+                {currentModelTabs.map((tab) => (
+                  <Tab
+                    key={tab.name}
+                    tab={tab}
+                    handleClick={() => handleChangeModel(tab.name)}
+                    helperText={tab.helperText}
+                  />
+                ))}
+              </div>
+              {/* Editor tools (to the right of models) */}
+              <div className="editortabs-container tabs ml-1">
+                {EditorTabs.filter((tab) => {
+                  const enabledOptions = getModelOptions(snap.model)
+                  if (enabledOptions.length === 0) return true // fallback: show all
+                  const tabToOption: Record<string, string> = {
+                    colorpicker: "color",
+                    filepicker: "file",
+                    aipicker: "ai",
+                  }
+                  const key = tabToOption[tab.name]
+                  return !key || enabledOptions.includes(key)
+                }).map((tab) => (
                   <Tab
                     key={tab.name}
                     tab={tab}
@@ -181,6 +254,8 @@ export default function Customizer({
               </div>
             </div>
           </motion.div>
+
+          {/* Top right: Go Back button */}
           <motion.div
             className="absolute z-10 top-5 right-5"
             {...fadeAnimation}
@@ -192,7 +267,36 @@ export default function Customizer({
               customStyles="w-fit px-4 py-2.5 font-bold text-sm"
             />
           </motion.div>
+
+          {/* Right side: Image Layer Controls */}
+          {snap.selectedLayerId && (
+            <motion.div
+              key="layercontrols"
+              className="absolute top-0 right-0 z-10"
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 50 }}
+            >
+              <div className="flex items-center min-h-screen pr-1">
+                <ImageLayerControls />
+              </div>
+            </motion.div>
+          )}
+
+          {/* Bottom: Filter tabs (Image layers + Texture + Download) */}
           <motion.div className="filtertabs-container" {...slideAnimation("up")}>
+            {snap.imageDecals.map((layer) => (
+              <Tab
+                key={layer.id}
+                tab={{ name: layer.id, icon: "/assets/logo-tshirt.png" }}
+                isFilterTab
+                isActiveTab={layer.visible}
+                handleClick={() => {
+                  state.selectedLayerId = layer.id
+                }}
+                helperText={layer.label}
+              />
+            ))}
             {FilterTabs.map((tab) => (
               <Tab
                 key={tab.name}
@@ -210,25 +314,6 @@ export default function Customizer({
                 className="w-3/5 h-3/5 object-contain"
               />
             </button>
-          </motion.div>
-          <motion.div
-            key="modelsAI"
-            className="absolute top-0 right-0 z-10"
-            {...slideAnimation("right")}
-          >
-            <div className="flex items-center min-h-screen">
-              <div className="modeltabs-container tabs">
-                <p className="text-sm text-gray-500 my-[-5px]">Models</p>
-                {modelTabs.map((tab) => (
-                  <Tab
-                    key={tab.name}
-                    tab={tab}
-                    handleClick={() => handleChangeModel(tab.name)}
-                    helperText={tab.helperText}
-                  />
-                ))}
-              </div>
-            </div>
           </motion.div>
         </>
       )}
