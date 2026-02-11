@@ -7,8 +7,9 @@ import ModelsManager from "@/components/admin/ModelsManager"
 import PrintLimitsManager from "@/components/admin/PrintLimitsManager"
 import ModelOptionsManager from "@/components/admin/ModelOptionsManager"
 import SettingsManager from "@/components/admin/SettingsManager"
+import ColorsManager from "@/components/admin/ColorsManager"
 
-type Tab = "models" | "print" | "options" | "settings"
+type Tab = "models" | "print" | "options" | "colors" | "settings"
 
 export default function BackendPage() {
   const [activeTab, setActiveTab] = useState<Tab>("models")
@@ -83,6 +84,7 @@ export default function BackendPage() {
     { id: "models", label: "Models" },
     { id: "print", label: "Print Limits" },
     { id: "options", label: "Model Options" },
+    { id: "colors", label: "Colors" },
     { id: "settings", label: "Settings" },
   ]
 
@@ -150,6 +152,21 @@ export default function BackendPage() {
                 </p>
               </div>
               <ModelOptionsManager />
+            </section>
+          )}
+
+          {activeTab === "colors" && (
+            <section>
+              <div className="mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Product Colors
+                </h2>
+                <p className="text-sm text-gray-500">
+                  Define the available colors customers can choose for each
+                  product. Only these predefined colors will be shown.
+                </p>
+              </div>
+              <ColorsManager />
             </section>
           )}
 

@@ -39,11 +39,21 @@ export interface SettingConfig {
   value: any
 }
 
+export interface ModelColorConfig {
+  id: string
+  model_id: string
+  color_hex: string
+  color_name: string
+  sort_order: number
+  enabled: boolean
+}
+
 export interface AppConfig {
   models: ModelConfig[]
   printLimits: PrintLimitConfig[]
   modelOptions: ModelOptionConfig[]
   settings: SettingConfig[]
+  modelColors: ModelColorConfig[]
 }
 
 const fetcher = async (url: string): Promise<AppConfig> => {
@@ -125,12 +135,21 @@ export function useConfig() {
     return s ? s.value : fallback
   }
 
+  // Helper: get predefined colors for a model
+  const getModelColors = (modelId: string): { hex: string; name: string }[] => {
+    if (!data || !data.modelColors) return []
+    return data.modelColors
+      .filter((c) => c.model_id === modelId)
+      .map((c) => ({ hex: c.color_hex, name: c.color_name }))
+  }
+
   return {
     config: data,
     error,
     isLoading,
     modelTabs,
     getModelOptions,
+    getModelColors,
     getSetting,
   }
 }

@@ -6,11 +6,12 @@ export const dynamic = "force-dynamic"
 export async function GET() {
   const supabase = await createClient()
 
-  const [modelsRes, printRes, optionsRes, settingsRes] = await Promise.all([
+  const [modelsRes, printRes, optionsRes, settingsRes, colorsRes] = await Promise.all([
     supabase.from("models").select("*").order("sort_order"),
     supabase.from("print_limits").select("*"),
     supabase.from("model_options").select("*"),
     supabase.from("settings").select("*"),
+    supabase.from("model_colors").select("*").eq("enabled", true).order("sort_order"),
   ])
 
   return NextResponse.json({
@@ -18,5 +19,6 @@ export async function GET() {
     printLimits: printRes.data ?? [],
     modelOptions: optionsRes.data ?? [],
     settings: settingsRes.data ?? [],
+    modelColors: colorsRes.data ?? [],
   })
 }
