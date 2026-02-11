@@ -20,18 +20,10 @@ import Tab from "./customizer/Tab"
 import ColorPicker from "./customizer/ColorPicker"
 import FilePicker from "./customizer/FilePicker"
 import AIPicker from "./customizer/AIPicker"
-import MouseMovement from "./customizer/MouseMovement"
+
 import ImageLayerControls from "./customizer/ImageLayerControls"
 
-interface CustomizerProps {
-  mouseMovement: boolean
-  handleMouseMove: () => void
-}
-
-export default function Customizer({
-  mouseMovement,
-  handleMouseMove,
-}: CustomizerProps) {
+export default function Customizer() {
   const snap = useSnapshot(state)
   const { modelTabs: dbModelTabs, getModelOptions } = useConfig()
   const currentModelTabs = dbModelTabs ?? fallbackModelTabs
@@ -73,21 +65,10 @@ export default function Customizer({
             handleSubmit={handleSubmit}
           />
         )
-      case "mouseMovement":
-        return (
-          <MouseMovement
-            mouseMovement={mouseMovement}
-            handleMouseSubmit={handleMouseSubmit}
-          />
-        )
+
       default:
         return null
     }
-  }
-
-  const handleMouseSubmit = () => {
-    handleMouseMove()
-    setActiveEditorTab("")
   }
 
   const handleSubmit = async (type: string) => {
@@ -254,7 +235,6 @@ export default function Customizer({
                     colorpicker: "color",
                     filepicker: "file",
                     aipicker: "ai",
-                    mouseMovement: "color", // always show mouse if color is on
                   }
                   const key = tabToOption[tab.name]
                   return !key || enabledOptions.includes(key)

@@ -12,9 +12,7 @@ import Tshirt from "./Tshirt"
 import Mug from "./Mug"
 import Diary from "./Diary"
 
-interface CanvasModelProps {
-  mouseMovement: boolean
-}
+interface CanvasModelProps {}
 
 function ModelSwitch() {
   const snap = useSnapshot(state)
@@ -33,7 +31,7 @@ function ModelSwitch() {
   }
 }
 
-export default function CanvasModel({ mouseMovement }: CanvasModelProps) {
+export default function CanvasModel({}: CanvasModelProps) {
   return (
     <Canvas
       shadows
@@ -46,7 +44,7 @@ export default function CanvasModel({ mouseMovement }: CanvasModelProps) {
       <Environment preset="city" />
       <Suspense fallback={null}>
         <Backdrop />
-        <CameraRig rotateWithClick={mouseMovement}>
+        <CameraRig>
           <ModelSwitch />
         </CameraRig>
       </Suspense>

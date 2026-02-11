@@ -14,11 +14,6 @@ export const EditorTabs = [
     icon: "/assets/ai.png",
     helperText: "AI",
   },
-  {
-    name: "mouseMovement",
-    icon: "/assets/mouse.png",
-    helperText: "Mouse",
-  },
 ]
 
 export const FilterTabs = [
