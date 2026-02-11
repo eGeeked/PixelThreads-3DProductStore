@@ -31,10 +31,10 @@ function SingleImageDecal({ url, position, rotation, scale, side }: ImageDecalPr
 
   // Aspect-ratio-aware scale so the decal projection box always matches
   // the image proportions — prevents clipping at any scale.
-  // Z-depth is kept very shallow (0.05) so the projection doesn't bleed
-  // through to the opposite side of the mesh.
+  // Z-depth of 0.3 covers the mesh curvature without bleeding through
+  // because depthTest is enabled (default) so back faces occlude the decal.
   const decalScale = useMemo((): [number, number, number] => {
-    const DEPTH = 0.05
+    const DEPTH = 0.3
     const img = texture.image as HTMLImageElement | undefined
     if (img && img.naturalWidth && img.naturalHeight) {
       const aspect = img.naturalWidth / img.naturalHeight
