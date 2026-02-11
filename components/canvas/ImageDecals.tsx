@@ -29,13 +29,33 @@ function SingleImageDecal({ url, position, rotation, scale, side }: ImageDecalPr
     return texture
   }, [texture, side])
 
+  // Compute aspect-ratio-aware scale so the projection box always matches
+  // the image proportions. This prevents clipping at any scale.
+  const decalScale = useMemo((): [number, number, number] => {
+    const img = texture.image as HTMLImageElement | undefined
+    if (img && img.naturalWidth && img.naturalHeight) {
+      const aspect = img.naturalWidth / img.naturalHeight
+      if (aspect >= 1) {
+        // Landscape or square: width = scale, height = scale / aspect
+        return [scale, scale / aspect, 1]
+      } else {
+        // Portrait: height = scale, width = scale * aspect
+        return [scale * aspect, scale, 1]
+      }
+    }
+    // Fallback: square
+    return [scale, scale, 1]
+  }, [texture, scale])
+
   return (
     <Decal
       position={position}
       rotation={rotation}
-      scale={scale}
+      scale={decalScale}
       map={displayTexture}
       map-anisotropy={16}
+      depthTest={false}
+      polygonOffsetFactor={-1}
     />
   )
 }
