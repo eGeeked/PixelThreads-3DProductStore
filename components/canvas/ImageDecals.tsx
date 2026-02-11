@@ -29,8 +29,8 @@ function SingleImageDecal({ url, position, rotation, scale, side }: ImageDecalPr
     return texture
   }, [texture, side])
 
-  // Compute aspect-ratio-aware scale so the projection box always matches
-  // the image proportions. This prevents clipping at any scale.
+  // Aspect-ratio-aware scale so the decal projection box always matches
+  // the image proportions — prevents clipping at any scale.
   const decalScale = useMemo((): [number, number, number] => {
     const img = texture.image as HTMLImageElement | undefined
     if (img && img.naturalWidth && img.naturalHeight) {
